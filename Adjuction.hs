@@ -16,11 +16,19 @@ data Writer s a = Writer s a
 instance Functor (Writer s) where
   fmap f (Writer s x) = Writer s (f x)
 
+instance Applicative (Writer s) where
+  pure x = undefined
+  f <*> x = undefined
+  
 newtype Reader s a = Reader (s -> a)
 
 instance Functor (Reader s) where
   fmap f (Reader g) = Reader (f . g)
 
+instance Applicative (Reader s) where
+  pure x = undefined
+  f <*> x = undefined
+  
 instance Adjunction (Writer s) (Reader s) where
   phiLeft  f = \x -> Reader $ \s -> f $ Writer s x
   phiRight g = \(Writer s x) -> let Reader r = g x in r s
@@ -52,7 +60,7 @@ get = Compose . Reader $ \s -> Writer s s
 
 runState :: State s a -> s -> (s, a)
 runState (Compose (Reader r)) s = let Writer s' a = r s in (s', a)
-{--
+
 fib :: Int -> State Int Int
 fib n = do
   i <- get
@@ -66,7 +74,7 @@ fib n = do
 
 main :: IO ()
 main = print $ runState (fib 10) 0
---}
+
 newtype Cocompose f g x = Cocompose { getCocompose :: f (g x) }
 
 instance (Functor f, Functor g, Adjunction f g) => Functor (Cocompose f g) where
