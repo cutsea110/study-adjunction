@@ -34,6 +34,10 @@ instance (Functor f, Functor g, Adjunction f g) => Functor (Compose f g) where
 join :: (Functor f, Functor g, Adjunction f g) => Compose f g (Compose f g a) -> Compose f g a
 join (Compose m) = Compose $ fmap (phiRight getCompose) m
 
+instance (Functor f, Functor g, Adjunction f g) => Applicative (Compose f g) where
+  pure x = Compose $ phiLeft id x
+  (Compose f) <*> (Compose x) = undefined
+
 instance (Functor f, Functor g, Adjunction f g) => Monad (Compose f g) where
   return x = Compose $ phiLeft id x
   m >>= f = join $ fmap f m
