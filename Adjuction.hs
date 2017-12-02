@@ -34,11 +34,11 @@ instance (Functor f, Functor g, Adjunction f g) => Functor (Compose f g) where
 join :: (Functor f, Functor g, Adjunction f g) => Compose f g (Compose f g a) -> Compose f g a
 join (Compose m) = Compose $ fmap (phiRight getCompose) m
 
-instance (Functor f, Functor g, Adjunction f g) => Applicative (Compose f g) where
+instance (Applicative f, Applicative g, Adjunction f g) => Applicative (Compose f g) where
   pure x = Compose $ phiLeft id x
-  (Compose f) <*> (Compose x) = undefined
+  Compose f <*> Compose x = Compose $ pure (<*>) <*> f <*> x
 
-instance (Functor f, Functor g, Adjunction f g) => Monad (Compose f g) where
+instance (Applicative f, Applicative g, Adjunction f g) => Monad (Compose f g) where
   return x = Compose $ phiLeft id x
   m >>= f = join $ fmap f m
 
@@ -52,7 +52,7 @@ get = Compose . Reader $ \s -> Writer s s
 
 runState :: State s a -> s -> (s, a)
 runState (Compose (Reader r)) s = let Writer s' a = r s in (s', a)
-
+{--
 fib :: Int -> State Int Int
 fib n = do
   i <- get
@@ -66,7 +66,7 @@ fib n = do
 
 main :: IO ()
 main = print $ runState (fib 10) 0
-
+--}
 newtype Cocompose f g x = Cocompose { getCocompose :: f (g x) }
 
 instance (Functor f, Functor g, Adjunction f g) => Functor (Cocompose f g) where
