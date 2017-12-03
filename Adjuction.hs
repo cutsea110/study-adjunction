@@ -18,7 +18,7 @@ instance Functor (Writer s) where
 
 instance Monoid s => Applicative (Writer s) where
   pure x = Writer mempty x
-  Writer w f <*> Writer w' x = Writer (w' `mappend` w) (f x)
+  Writer w' f <*> Writer w x = Writer (w `mappend` w') (f x)
   
 newtype Reader s a = Reader (s -> a)
 
