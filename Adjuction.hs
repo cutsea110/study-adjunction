@@ -15,15 +15,15 @@ data Writer s a = Writer s a
 
 instance Functor (Writer s) where
   fmap f (Writer s x) = Writer s (f x)
-
+{--
 instance Applicative (Writer s) where
   pure x = undefined
   f <*> x = undefined
-{--
+--}
 instance Monoid s => Applicative (Writer s) where
   pure x = Writer mempty x
   Writer w' f <*> Writer w x = Writer (w `mappend` w') (f x)
---}  
+
 newtype Reader s a = Reader (s -> a)
 
 instance Functor (Reader s) where
@@ -64,6 +64,12 @@ get = Compose . Reader $ \s -> Writer s s
 
 runState :: State s a -> s -> (s, a)
 runState (Compose (Reader r)) s = let Writer s' a = r s in (s', a)
+
+instance Semigroup Int where
+  (<>) = (+)
+
+instance Monoid Int where
+  mempty = 0
 
 fib :: Int -> State Int Int
 fib n = do
